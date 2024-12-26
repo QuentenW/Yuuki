@@ -2,9 +2,8 @@ import socket
 import os
 import time
 
-
-# Python TCP server connection for sending image data and recieving positional data to a robotic arm
-#12/22/2024 Quenten Welch
+# Python TCP client for sending image data and receiving positional data to a robotic arm
+# 12/22/2024 Quenten Welch
 
 # Server Configuration
 HOST = '10.0.0.166'
@@ -33,17 +32,21 @@ try:
             if not os.path.isfile(image_path):
                 continue
 
-            # Send image size
+            # Step 1: Send the filename
+            client_socket.sendall(image_file.encode())
+            client_socket.recv(BUFFER_SIZE)  # Wait for ACK_FILENAME
+
+            # Step 2: Send image size
             image_size = os.path.getsize(image_path)
             client_socket.sendall(str(image_size).encode())
-            client_socket.recv(BUFFER_SIZE)  # Wait for ACK
+            client_socket.recv(BUFFER_SIZE)  # Wait for ACK_IMAGE_SIZE
 
-            # Send image data
+            # Step 3: Send image data
             with open(image_path, "rb") as f:
                 client_socket.sendall(f.read())
             print(f"Image '{image_file}' sent successfully!")
 
-            # Receive servo positions
+            # Step 4: Receive servo positions
             data = client_socket.recv(BUFFER_SIZE).decode()
             servo_positions = list(map(int, data.split(",")))
             print(f"Received servo positions: {servo_positions}")
@@ -51,7 +54,7 @@ try:
             # Wait a bit before sending the next image
             time.sleep(1)
 
-        client_socket.close() 
+        client_socket.close()
 
 except Exception as e:
     print(f"Error: {e}")

@@ -1,48 +1,55 @@
 import socket
-import ssl
 import os
-
-# Python TCP server connection for recieving image data and transmitting positional data to a robotic arm
-#12/22/2024 Quenten Welch
+import threading
 
 # Server Configuration
-HOST = '0.0.0.0'  # Listen on for IP on all interfaces
-PORT = 5000  # Port for communication, selected arbitrarily but must match on client and server
+HOST = '0.0.0.0'  # Listen on all interfaces
+PORT = 5000  # Port for communication
 BUFFER_SIZE = 4096
-output_dir = "received_images" #directory to store image data
-os.makedirs(output_dir, exist_ok=True) 
+output_dir = "received_images"  # Directory to store image data
+os.makedirs(output_dir, exist_ok=True)
 
-context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-context.load_cert_chain(certfile="server.crt", keyfile="server.key")
-
-def handle_connection(conn):
+def handle_connection(conn, addr):
+    print(f"Handling connection from {addr}")
     try:
         while True:
-            # Receive image size
-            image_size_data = conn.recv(BUFFER_SIZE).decode()
-            if not image_size_data.strip():  # Check for empty or invalid data
-                print("No image size received or client disconnected.")
+            # Receive the original filename (ensure it's text data)
+            original_filename = conn.recv(BUFFER_SIZE).decode('utf-8').strip()
+            if not original_filename:
+                print(f"No filename received or client {addr} disconnected.")
+                break
+
+            # Acknowledge receipt of the filename
+            conn.sendall(b"ACK_FILENAME")
+
+            # Receive image size (ensure it's text data)
+            image_size_data = conn.recv(BUFFER_SIZE).decode('utf-8').strip()
+            if not image_size_data:
+                print(f"No image size received or client {addr} disconnected.")
                 break
 
             try:
                 image_size = int(image_size_data)
             except ValueError:
-                print(f"Invalid image size received: {image_size_data}")
+                print(f"Invalid image size received from {addr}: {image_size_data}")
                 break
 
-            conn.sendall(b"ACK")  # Acknowledge
+            conn.sendall(b"ACK_IMAGE_SIZE")  # Acknowledge image size
 
-            # Receive image data
+            # Receive image data (binary data)
             image_data = b""
             while len(image_data) < image_size:
                 packet = conn.recv(BUFFER_SIZE)
                 if not packet:
-                    print("Connection interrupted while receiving image data.")
+                    print(f"Connection interrupted while receiving image data from {addr}.")
                     return
                 image_data += packet
 
-            # Save the image
-            image_path = os.path.join(output_dir, "received_image.jpg")
+            # Save the image with a unique name
+            ip, port = addr
+            safe_ip = ip.replace('.', '_')  # Replace dots in IP for a valid filename
+            prepended_filename = f"{safe_ip}_{port}_{original_filename}"  # Prepend client address
+            image_path = os.path.join(output_dir, prepended_filename)
             with open(image_path, "wb") as f:
                 f.write(image_data)
             print(f"Image saved to {image_path}")
@@ -53,19 +60,23 @@ def handle_connection(conn):
             # Send servo positions
             command = ",".join(map(str, servo_positions))
             conn.sendall(command.encode())
-            print(f"Sent servo positions: {command}")
+            print(f"Sent servo positions to {addr}: {command}")
 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error with client {addr}: {e}")
     finally:
         conn.close()
+        print(f"Connection with {addr} closed.")
 
 # Main Server Loop
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
     server_socket.bind((HOST, PORT))
-    server_socket.listen(1)
+    server_socket.listen(5)  # Allow up to 5 queued connections
     print(f"Server listening on {HOST}:{PORT}")
-    with context.wrap_socket(server_socket, server_side=True) as secure_socket:
-        conn, addr = secure_socket.accept()
+
+    while True:
+        conn, addr = server_socket.accept()
         print(f"Connection from {addr}")
-        handle_connection(conn)
+        client_thread = threading.Thread(target=handle_connection, args=(conn, addr))
+        client_thread.daemon = True  # Allow thread to exit when the main program ends
+        client_thread.start()
