@@ -3,8 +3,8 @@ import subprocess
 import os
 
 # Get the base directory dynamically
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-SCRIPTS_FOLDER = os.path.join(BASE_DIR, "../TCP_Networking")
+base_dir = os.path.dirname(os.path.abspath(__file__))
+scripts_folder = os.path.join(base_dir, "../TCP_Networking")
 
 # Set the appearance and theme
 tk.set_appearance_mode("dark")  
@@ -16,7 +16,7 @@ root.geometry("500x350")
 root.title("Client-Server Script Runner")
 
 def run_script(script_name):
-    script_path = os.path.join(SCRIPTS_FOLDER, script_name)
+    script_path = os.path.join(scripts_folder, script_name)
     try:
         subprocess.run(["python", script_path], check=True)
     except Exception as e:
