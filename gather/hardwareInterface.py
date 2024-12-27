@@ -53,6 +53,7 @@ def human_control_process(
           hardware.get_image()
         )
       )
+      n = 0
     # Check if process has been told new command
     if cmdReceiver.poll():
       cmd = cmdReceiver.recv()

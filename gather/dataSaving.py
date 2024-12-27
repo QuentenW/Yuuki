@@ -49,7 +49,7 @@ def dataSaveProcess(
   running = True
   while running:
     # Wait to receive data or command signal
-    received, _, _ = select([cmdSender, dataSender], [], [])
+    received, _, _ = select.select([cmdSender, dataSender], [], [])
     # Process received
     for rec in received:
       # Give received data to data saver

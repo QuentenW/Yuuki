@@ -27,7 +27,7 @@ def dataSaveProcess(
   running = True
   while running:
     # Wait to receive data or command signal
-    received, _, _ = select([cmdSender, dataSender], [], [])
+    received, _, _ = select.select([cmdSender, dataSender], [], [])
     # Process received
     for rec in received:
       # Give received data to data saver
@@ -84,7 +84,7 @@ class DataSaver:
       ''''''
 
       # Save position data
-      self.spositional_data[timestamp] = position
+      self.position_data[timestamp] = position
       # Save video frame
       frame_resize = cv2.resize(
         frame,
@@ -99,6 +99,6 @@ class DataSaver:
 
     # Save position data
     with open(f"{self.save_dir}/position_{self.time_stamp}.json", "w") as f:
-      json.dump(self.positional_data, f, indent=4)
+      json.dump(self.position_data, f, indent=4)
     # Save video
     self.video_writer.release()

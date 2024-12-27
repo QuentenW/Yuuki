@@ -8,13 +8,13 @@ import communication as coms
 
 # TODO: Make some of these command line arguments or in config file
 save_dir = "data/pusht"
-base_hz = 10
+base_hz = 100
 action_steps = 10
 camera_steps = 10
-servo_steps = 10
-servo_fq = base_hz * servo_steps
-action_fq = base_hz * action_steps
-save_fq = base_hz * camera_steps
+servo_steps = 1
+servo_fq = servo_steps
+action_fq = action_steps
+save_fq = camera_steps
 pixel_width = 1024
 pixel_height = 1024
 save_pixel_width = 512
@@ -55,9 +55,9 @@ def main():
     )
   )
   # Start proesses
-  display_process.start()
   hardware_process.start()
   saver_process.start()
+  display_process.start()
 
   # Monitoring loop monitoring signals from display
   running = True
@@ -70,6 +70,7 @@ def main():
       hardware_process.join()
       saver_cmd_send.send(coms.CommandSignal.EXIT)
       saver_process.join()
+      running = False
     else:
       # A problem?
       continue
@@ -78,4 +79,4 @@ def main():
 
 
 if __name__ == '__main__':
-  pass
+  main()
