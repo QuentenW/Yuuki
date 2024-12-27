@@ -2,32 +2,28 @@ import socket
 import os
 import threading
 
-# Server Configuration
-HOST = '0.0.0.0'  # Listen on all interfaces
-PORT = 5000  # Port for communication
+# server configuration
+HOST = '0.0.0.0'  # listen on all interfaces
+PORT = 5000
 BUFFER_SIZE = 4096
-output_dir = "received_images"  # Directory to store image data
-os.makedirs(output_dir, exist_ok=True)
+output_dir = 'received_images'
 
 def handle_connection(conn, addr):
-    print(f"Handling connection from {addr}")
+    print(f'Handling connection from {addr}')
     try:
         while True:
             # Receive the original filename (ensure it's text data)
             original_filename = conn.recv(BUFFER_SIZE).decode('utf-8').strip()
             if not original_filename:
-                print(f"No filename received or client {addr} disconnected.")
+                print(f'No filename received or client {addr} disconnected.')
                 break
-
             # Acknowledge receipt of the filename
-            conn.sendall(b"ACK_FILENAME")
-
+            conn.sendall(b'ACK_FILENAME')
             # Receive image size (ensure it's text data)
             image_size_data = conn.recv(BUFFER_SIZE).decode('utf-8').strip()
             if not image_size_data:
                 print(f"No image size received or client {addr} disconnected.")
                 break
-
             try:
                 image_size = int(image_size_data)
             except ValueError:
@@ -68,15 +64,16 @@ def handle_connection(conn, addr):
         conn.close()
         print(f"Connection with {addr} closed.")
 
-# Main Server Loop
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
-    server_socket.bind((HOST, PORT))
-    server_socket.listen(5)  # Allow up to 5 queued connections
-    print(f"Server listening on {HOST}:{PORT}")
+if __name__=='__main__':
+    os.makedirs(output_dir, exist_ok=True)
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
+        server_socket.bind((HOST, PORT))
+        server_socket.listen(5)  # Allow up to 5 queued connections
+        print(f"Server listening on {HOST}:{PORT}")
 
-    while True:
-        conn, addr = server_socket.accept()
-        print(f"Connection from {addr}")
-        client_thread = threading.Thread(target=handle_connection, args=(conn, addr))
-        client_thread.daemon = True  # Allow thread to exit when the main program ends
-        client_thread.start()
+        while True:
+            conn, addr = server_socket.accept()
+            print(f"Connection from {addr}")
+            client_thread = threading.Thread(target=handle_connection, args=(conn, addr))
+            client_thread.daemon = True  # Allow thread to exit when the main program ends
+            client_thread.start()
