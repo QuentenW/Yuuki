@@ -1,6 +1,10 @@
 *data/
 .DS_Store
 control/
-*test.py
 TCP_Networking/received_images/
-TCP_Networking/test_images/
+*demo.*
+*test.*
+TODO.txt
+*.pyc
+diffusion_policy/*
+*.ckpt
