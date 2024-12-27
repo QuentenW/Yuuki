@@ -16,8 +16,6 @@ root = tk.CTk()
 root.geometry("500x350")
 root.title("Client-Server Script Runner")
 
-
-#should use subprocess.popen here so gui doesnt freeze
 def start_script(script_name):
     script_path = os.path.join(scripts_folder, script_name)
     try:
@@ -32,15 +30,6 @@ def stop_script(script_name):
         processes[script_name].terminate()
         processes[script_name].wait()
         print(f"Stopped {script_name}")
-
-# Set the appearance and theme
-tk.set_appearance_mode("dark")  
-tk.set_default_color_theme("dark-blue")  
-
-# Create the main application window
-root = tk.CTk() 
-root.geometry("500x350")
-root.title("Client-Server Script Runner")
 
 root.geometry("400x300")
 page_label = tk.CTkLabel(root, text="Client-Server Script Runner", font=("Arial", 18))
