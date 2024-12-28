@@ -1,3 +1,7 @@
 TODO
 Make init file
     --creates file/folder structure on clients machine
+
+We need to consider how the user is going to train the robot
+    --How can we improve the interface to control the robot and train new behaviours
+    --Most useful tasks require precision
