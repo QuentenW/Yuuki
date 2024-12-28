@@ -7,11 +7,10 @@ import shutil
 # Get the base directory dynamically
 base_dir = os.path.dirname(os.path.abspath(__file__))
 scripts_folder = os.path.join(base_dir, "../TCP_Networking")
-received_folder = os.path.join(base_dir, "received_images")  # Folder for received images
+received_folder = os.path.join(base_dir, "received_images")
 os.makedirs(received_folder, exist_ok=True)  # Ensure it exists
 processes = {}
 
-# Set the appearance and theme
 tk.set_appearance_mode("dark")
 tk.set_default_color_theme("dark-blue")
 
