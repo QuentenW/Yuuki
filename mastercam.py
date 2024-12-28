@@ -13,7 +13,7 @@ camera.start()
 
 def send_pulse_and_capture():
   gpio.output(pin, gpio.HIGH)
-  time.sleep(0.6)
+  time.sleep(0.1)
   print(gpio.input(pin))
   gpio.output(pin, gpio.LOW)
   print("Pulse sent!")
