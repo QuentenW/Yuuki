@@ -1,0 +1,18 @@
+Improve training data collection pipeline:
+TODO: Setup multiple cameras to work with non-interupt based loop
+TODO: Create general purpose script for recording and saving task data
+TODO: Script to collect data for a given task and collect into a single zarr
+    - Dataset (zarr) contains:
+        - For each video stream, a single vector of video frames
+        - Vector of servo positions with same indexing as video arrays
+        - Vector of actions (next sero position) with same indexing as video arrays
+        - Vector of episode lengths
+
+Improve training pipeline:
+TODO: Make dataset class and loader for pusht
+TODO: Make script for training pusht task
+TODO: Make modules for diffusion network models
+TODO: Make general purpose script for training different tasks
+
+Learning:
+TODO: Find out what EMA is doing and how its implemented -> it's ~ a moving averge of model weights at training
