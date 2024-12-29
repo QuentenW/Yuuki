@@ -43,7 +43,7 @@ def init_camera(width, height):
   camera.start()
   return camera
 
-def get_camera(camera):
+def get_image(camera):
   return camera.capture_array()
 
 def human_control_process(control_hz, save_rate,
@@ -67,14 +67,16 @@ def human_control_process(control_hz, save_rate,
     # save
     if t == save_rate:
       gpio.output(17, GPIO.HIGH)
-      save_con.send((time.time(), position, get_camera(camera)))
+      save_con.send((time.time(), position, get_image(camera)))
       gpio.output(17, GPIO.LOW)
       t = 1
     else: t += 1
     time.sleep(1 / control_hz)
 
+  camera.stop()
+
 # todo unfinished pd control
-''' 
+'''
 def propDervControl(self, action, dt):
     #Uses proportion-derivative control to update servo positions.
     acceleration = [

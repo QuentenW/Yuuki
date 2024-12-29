@@ -8,12 +8,13 @@ save_rate = 10
 img_size = (1024, 1024)
 save_img_size = (512, 512)
 
+# If you aren't gonna define functions this if is pointless
 if __name__=='__main__':
   save_id = time.time()
   hw_cmd_con_in, hw_cmd_con_out = Pipe()
   save_cmd_con_in, save_cmd_con_out = Pipe()
   data_con_in, data_con_out = Pipe()
-  hw_proc = Process(target=hardware.human_control_process,
+  hw_proc = Process(target=hardware.human_control_process, #Homework process
                     args=(control_hz, save_rate, img_size,
                           hw_cmd_con_in, data_con_out))
   save_proc = Process(target=save.save_process,
