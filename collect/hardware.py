@@ -3,11 +3,16 @@ from picamera2 import Picamera2
 import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
 from adafruit_servokit import ServoKit
+import RPi.GPIO as gpio
 
 # magic numbers
 servo_bot = [6600, 5700, 6200, 6400]
 servo_top = 32767
 servo_range = [servo_top - bot for bot in servo_bot]
+
+# Pin Configuration
+gpio.setmode(gpio.BCM)
+gpio.setup(17, gpio.OUT) # master
 
 # servos
 def init_servos():
@@ -54,13 +59,16 @@ def human_control_process(control_hz, save_rate,
       camera.stop()
       cmd_con.close()
       save_con.close()
+      gpio.cleanup()
       break
     # update servos
     position = get_pots(pots)
     set_servos(servos, position)
     # save
     if t == save_rate:
+      gpio.output(17, GPIO.HIGH)
       save_con.send((time.time(), position, get_camera(camera)))
+      gpio.output(17, GPIO.LOW)
       t = 1
     else: t += 1
     time.sleep(1 / control_hz)

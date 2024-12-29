@@ -1,53 +1,82 @@
 from multiprocessing import Pipe, Process
 from hardware import init_camera, get_camera
 import RPi.GPIO as gpio
-import time, signal, save
+import cv2, time, os, signal
 
+# GPIO Pins
+CAPTURE_PIN = 21  
+END_PIN = 20      
 
-# params (image sizes are (w, h) in px)
-pin = 21
-save_dir = "../data/pusht"
-camera_fps = 100/10 # clean this up
-img_size = (1024, 1024)
-save_img_size = (512, 512)
+# Parameters
+SAVE_DIR = "../data/pusht"
+IMG_SIZE = (1024, 1024)  # (width, height) for capture
+SAVE_IMG_SIZE = (512, 512)  # Resized dimensions for saving
 
-def init_gpio(pin):
+def init_gpio(capture_pin, end_pin, capture_callback, end_callback):
   gpio.setmode(gpio.BCM)
-  gpio.setup(pin, gpio.IN, pull_up_down=gpio.PUD_DOWN)
+  gpio.setup(capture_pin, gpio.IN, pull_up_down=gpio.PUD_DOWN)
+  gpio.setup(end_pin, gpio.IN, pull_up_down=gpio.PUD_DOWN)
 
-def capture_image():
-  timestamp = time.strftime("%Y%m%d_%H%M%S")
-  path = f"capture_{timestamp}.png"
-  camera.capture_file(path)
-  print(f"Image captured: {path}")
+  # Add event detection for capture and end signals
+  gpio.add_event_detect(capture_pin, gpio.RISING, callback=capture_callback, bouncetime=50)
+  gpio.add_event_detect(end_pin, gpio.RISING, callback=end_callback, bouncetime=50)
 
-def callback(_):
-  print("Pulse detected!")
-  # todo this should use the camera to send the save process an image
-  # todo I'm imitating https://raspberrypi.stackexchange.com/questions/120662/what-is-the-best-way-to-wait-for-gpio-events with the callback syntax, but I think it would be better to just use signal.pause() to wait until an edge detection and have this code run after in the while True loop.
-  img = get_camera()
-
-if __name__=="__main__":
-  # todo this time.time() is a placeholder, there's no way to get the filenames to match b/w here and master w/o sending data over a con
-  # I don't know if a separate process is needed for hardware on this one, but we could to match the style of the other code
-  save_id = time.time()
-  save_cmd_con_in, save_cmd_con_out = Pipe()
-  data_con_in, data_con_out = Pipe()
-  save_proc = Process(target=save.save_process,
-                      args=(save_dir, save_id,
-                            camera_fps, save_img_size,
-                            save_cmd_con_in, data_con_in))# todo won't work, expects positions, should just get image in
-  gpio.add_event_detect(pin, gpio.RISING,
-                        callback=callback, bouncetime=50)
-  init_camera(*img_size)
-  init_gpio(pin)
-  save_proc.start()
+# Save Process
+def save_images(save_dir, save_img_size, data_con):
+  if not os.path.exists(save_dir):
+    os.makedirs(save_dir)
   try:
-    print("Waiting for synchronization pulse...")
     while True:
-      signal.pause()
-  except KeyboardInterrupt:# TODO replace with end signal on another pin which would be passed from master
-    print("Exiting...")
+      timestamp, img = data_con.recv()
+      resized_img = cv2.resize(img, save_img_size, interpolation=cv2.INTER_AREA)
+      filename = f"{save_dir}/capture_{timestamp}.png"
+      cv2.imwrite(filename, resized_img)
+      print(f"Saved image: {filename}")
+  except EOFError:  # Pipe closed, exit process
+    print("Save process exiting...")
   finally:
+    print("Save process cleanup complete.")
+
+# Callback Functions
+def capture_callback(channel):
+  global camera, data_con_out
+  print("Capture signal received!")
+  timestamp = time.strftime("%Y%m%d_%H%M%S")
+  img = get_camera(camera)
+  data_con_out.send((timestamp, img))
+
+def end_callback(channel):
+  print("End signal received!")
+  raise SystemExit  # Gracefully exit the program
+
+# Main Slave Camera Process
+def slavecam():
+  global camera, data_con_out
+
+  print("Initializing Slave Camera...")
+  init_gpio(CAPTURE_PIN, END_PIN, capture_callback, end_callback)
+  camera = init_camera(*IMG_SIZE)
+  save_cmd_con_out, save_cmd_con_in = Pipe()
+  data_con_out, data_con_in = Pipe()
+
+  save_proc = Process(target=save_images, args=(SAVE_DIR, SAVE_IMG_SIZE, data_con_in))
+  save_proc.start()
+
+  print("Slave Camera Ready. Waiting for signals...")
+  try:
+    # Wait for GPIO events
+    signal.pause()
+  except SystemExit:
+    print("Exiting due to end signal...")
+  finally:
+    print("Cleaning up resources...")
+    save_cmd_con_out.close()
+    data_con_out.close()
     camera.stop()
     gpio.cleanup()
+    save_proc.join()
+    print("Slave Camera Shut Down.")
+
+# Entry Point
+if __name__ == "__main__":
+  slavecam()
