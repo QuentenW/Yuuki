@@ -52,12 +52,11 @@ def save_images(save_dir, save_id, save_img_size, data_con):
     print("Save process cleanup complete.")
 
 # Callback Functions
-def capture_callback(channel, camera, data_con_out):
-  # global camera, data_con_out
+def capture_callback(channel, camera, data_con_in):
   print("Capture signal received!")
   timestamp = time.strftime("%Y%m%d_%H%M%S")
   img = get_image(camera)
-  data_con_out.send((timestamp, img))
+  data_con_in.send((timestamp, img))
 
 def end_callback(channel):
   print("End signal received!")
@@ -75,11 +74,11 @@ def slavecam():
   capture_callback_wrap = lambda channel : capture_callback(
     channel=channel,
     camera=camera,
-    data_con_out=data_con_out
+    data_con_out=data_con_in
   )
   init_gpio(CAPTURE_PIN, END_PIN, capture_callback_wrap, end_callback)
 
-  save_proc = Process(target=save_images, args=(SAVE_DIR, SAVE_IMG_SIZE, data_con_in))
+  save_proc = Process(target=save_images, args=(SAVE_DIR, SAVE_IMG_SIZE, data_con_out))
   save_proc.start()
 
   print("Slave Camera Ready. Waiting for signals...")
