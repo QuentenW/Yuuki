@@ -68,7 +68,7 @@ def slavecam():
   # global camera, data_con_out
 
   # Create img save pipe
-  data_con_in, data_con_out = Pipe()
+  data_con_out, data_con_in = Pipe()
   print("Initializing Slave Camera...")
   camera = init_camera(*IMG_SIZE)
   # Create wrapper
