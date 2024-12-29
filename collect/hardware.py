@@ -10,9 +10,10 @@ servo_bot = [6600, 5700, 6200, 6400]
 servo_top = 32767
 servo_range = [servo_top - bot for bot in servo_bot]
 
-# Pin Configuration
+# pin configuration
+master_pin = 17
 gpio.setmode(gpio.BCM)
-gpio.setup(17, gpio.OUT) # master
+gpio.setup(master_pin, gpio.OUT) # master
 
 # servos
 def init_servos():
@@ -66,13 +67,12 @@ def human_control_process(control_hz, save_rate,
     set_servos(servos, position)
     # save
     if t == save_rate:
-      gpio.output(17, GPIO.HIGH)
-      save_con.send((time.time(), position, get_image(camera)))
-      gpio.output(17, GPIO.LOW)
+      gpio.output(master_pin, gpio.HIGH)
+      save_con.send((time.time(), position, get_image(camera))) # todo is this enough delay when sending the signal?
+      gpio.output(master_pin, gpio.LOW)
       t = 1
     else: t += 1
     time.sleep(1 / control_hz)
-
   camera.stop()
 
 # todo unfinished pd control
