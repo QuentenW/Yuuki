@@ -12,6 +12,7 @@ servo_range = [servo_top - bot for bot in servo_bot]
 
 # pin configuration
 master_pin = 17
+end_pin = 20
 gpio.setmode(gpio.BCM)
 gpio.setup(master_pin, gpio.OUT) # master
 
@@ -60,6 +61,8 @@ def human_control_process(control_hz, save_rate,
       camera.stop()
       cmd_con.close()
       save_con.close()
+      gpio(end_pin, gpio.HIGH)
+      time.sleep(1)
       gpio.cleanup()
       break
     # update servos
