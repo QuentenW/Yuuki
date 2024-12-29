@@ -2,6 +2,7 @@ import RPi.GPIO as gpio
 import time
 from picamera2 import Picamera2
 
+# todo this stuff should be part of hardware, and when an image is taken it should just be a pulse sending added to that file
 # gpio init
 pin = 17  # master
 gpio.setmode(gpio.BCM)
