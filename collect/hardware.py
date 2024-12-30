@@ -12,16 +12,17 @@ servo_range = [servo_top - bot for bot in servo_bot]
 
 # pin configuration
 master_pin = 17
-end_pin = 20
+end_pin = 16
 gpio.setmode(gpio.BCM)
-gpio.setup(master_pin, gpio.OUT) # master
+gpio.setup(master_pin, gpio.OUT)
+gpio.setup(end_pin, gpio.OUT)
 
 # servos
 def init_servos():
   return ServoKit(channels=16).servo
 
 def set_servos(servos, position): # TODO safety checks?
-  for i in range(3):
+  for i in range(4):
     norm_pos = (position[i] - servo_bot[i])/servo_range[i] # [0,1]
     norm_pos = round(min(max(norm_pos*180, 0), 180))    # [0..180]
     servos[i].angle = norm_pos if i==3 else 180 - norm_pos
@@ -58,12 +59,16 @@ def human_control_process(control_hz, save_rate,
   while True:
     # check termination
     if cmd_con.poll() and cmd_con.recv()==comm.EXIT:
+      print('waha')
       camera.stop()
       cmd_con.close()
       save_con.close()
-      gpio(end_pin, gpio.HIGH)
+      gpio.output(end_pin, gpio.HIGH)
       time.sleep(1)
+      gpio.output(end_pin, gpio.LOW)
+      print('deer')
       gpio.cleanup()
+      print('here')
       break
     # update servos
     position = get_pots(pots)
