@@ -6,3 +6,7 @@ TCP_Networking/received_images/
 TCP_Networking/test_images/
 GUI/received_images/
 GUI/test_images/
+training/*test.*
+training/*demo.*
+training/enviroments
+*.pyc
