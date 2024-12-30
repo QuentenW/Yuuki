@@ -69,6 +69,7 @@ def human_control_process(control_hz, save_rate,
       print('deer')
       gpio.cleanup()
       print('here')
+      time.sleep(0.3) #ensure cleanup finishes
       break
     # update servos
     position = get_pots(pots)
