@@ -4,8 +4,8 @@ import RPi.GPIO as gpio
 import cv2, time, os, signal, pickle
 
 # gpio pins
-img_pin = 21
-end_pin = 20
+img_pin = 16
+end_pin = 24#
 # TODO: these args should be from a config, s.t. can be shared
 save_dir = '../data/pusht'
 img_size = (1024, 1024) # (w, h)
@@ -18,22 +18,25 @@ def snap(camera):# todo replace callbacks w/ something better
                           interpolation=cv2.INTER_AREA)
   video_writer.write(img_resize)
 
-if __name__ == '__main__':
+if __name__=='__main__':
+  save_id = time.time()
   camera = init_camera(*img_size)
-  img_callback_wrap = lambda _: img_callback(camera, data_con_in)
-  init_gpio(img_pin, end_pin, img_callback_wrap, end_callback)
   video_writer = cv2.VideoWriter(f'{save_dir}/video2_{save_id}.mp4',
                                  cv2.VideoWriter_fourcc(*'mp4v'),
                                  camera_fps, save_img_size)
   gpio.setmode(gpio.BCM)
   gpio.setup(img_pin, gpio.IN, pull_up_down=gpio.PUD_DOWN)
   gpio.setup(end_pin, gpio.IN, pull_up_down=gpio.PUD_DOWN)
-  gpio.add_event_detect(img_pin, gpio.RISING, lambda _: snap(camera), 50)
-  gpio.add_event_detect(end_pin, gpio.RISING, lambda _: 1/0, 50)
+  # gpio.add_event_detect(img_pin, gpio.RISING, lambda _: snap(camera))
+  # gpio.add_event_detect(end_pin, gpio.RISING, lambda _: 1/0) # debounce
   while True:
-    try: signal.pause() # wait for gpio events
-    finally:
+    if gpio.input(img_pin)==gpio.HIGH:
+      snap(camera)
+      print('pulsed')
+    if gpio.input(end_pin)==gpio.HIGH:
       video_writer.release()
       camera.stop()
       gpio.cleanup()
-      break
+      break      
+    time.sleep(0.005)
+
