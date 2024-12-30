@@ -9,4 +9,6 @@ GUI/test_images/
 training/*test.*
 training/*demo.*
 training/enviroments
+training/savedWeights
+training/TODO.txt
 *.pyc
