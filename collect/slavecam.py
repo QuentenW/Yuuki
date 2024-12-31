@@ -1,7 +1,7 @@
 from multiprocessing import Pipe, Process
 from hardware import init_camera, get_image
 import RPi.GPIO as gpio
-import cv2, time, os, signal, pickle, time, pickle
+import cv2, time, os, signal, pickle, time, json
 
 # gpio pins
 img_pin = 16
@@ -21,7 +21,7 @@ os.makedirs(new_folder_path)
 
 # Update file paths to save in the new folder
 video_path = os.path.join(new_folder_path, f"video2_{save_id}.mp4")
-pickle_path = os.path.join(new_folder_path, f"times2_{save_id}.pkl")
+json_path = os.path.join(new_folder_path, f"times2_{save_id}.json")
 
 save_id = time.time()
 camera = init_camera(*img_size)
@@ -47,7 +47,7 @@ while True:
     video_writer.release()
     camera.stop()
     gpio.cleanup()
-    with open(pickle_path, 'wb') as file:
-      pickle.dump(timestamp_data, file)
+    with open(json_path, 'wb') as file:
+      json.dump(timestamp_data, file)
     break
   time.sleep(0.01)
