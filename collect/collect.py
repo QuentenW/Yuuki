@@ -22,7 +22,6 @@ if __name__=='__main__':
                             save_cmd_con_out, data_con_out))
   hw_proc.start()
   save_proc.start()
-  print('stato')
   try:
     sc = comm.curses_up()
     while True:
