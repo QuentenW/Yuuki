@@ -15,7 +15,6 @@ wrist_pin = 2
 # Initialize stepper motors and servo
 # kit = ServoKit(channels=16)
 # kit.servo[wrist_pin].angle = 0
-.
 
 
 # Functions
@@ -63,8 +62,8 @@ def main_loop():
     global x, y, z, theta1, theta2, theta3, delta
 
     # Set initial position
-    x = 60
-    y = 10
+    x = 240
+    y = 0
     z = 0
 
     inverse_kinematics(x, y, z)
