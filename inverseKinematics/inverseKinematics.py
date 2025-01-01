@@ -15,7 +15,7 @@ wrist_pin = 2
 # Initialize stepper motors and servo
 # kit = ServoKit(channels=16)
 # kit.servo[wrist_pin].angle = 0
-
+.
 
 
 # Functions
