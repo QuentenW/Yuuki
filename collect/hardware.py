@@ -57,7 +57,6 @@ def human_control_process(control_hz, save_rate,
   camera = init_camera(*img_size)
   t = 1
   while True:
-    print(t)
     # check termination
     if cmd_con.poll() and cmd_con.recv()==comm.EXIT:
       camera.stop()
