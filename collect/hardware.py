@@ -59,17 +59,11 @@ def human_control_process(control_hz, save_rate,
   while True:
     # check termination
     if cmd_con.poll() and cmd_con.recv()==comm.EXIT:
-      print('waha')
       camera.stop()
-      cmd_con.close()
-      save_con.close()
       gpio.output(end_pin, gpio.HIGH)
       time.sleep(1)
       gpio.output(end_pin, gpio.LOW)
-      print('deer')
       gpio.cleanup()
-      print('here')
-      time.sleep(0.3) #ensure cleanup finishes
       break
     # update servos
     position = get_pots(pots)
@@ -77,8 +71,9 @@ def human_control_process(control_hz, save_rate,
     # save
     if t == save_rate:
       gpio.output(master_pin, gpio.HIGH)
-      save_con.send((time.time(), position, get_image(camera))) # todo is this enough delay when sending the signal?
+      time.sleep(0.001)
       gpio.output(master_pin, gpio.LOW)
+      save_con.send((time.time(), position, get_image(camera))) # todo is this enough delay when sending the signal?
       t = 1
     else: t += 1
     time.sleep(1 / control_hz)
