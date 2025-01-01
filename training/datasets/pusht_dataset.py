@@ -91,14 +91,25 @@ class PushTImageDataset(torch.utils.data.Dataset):
         dataset_root = zarr.open(dataset_path, 'r')
 
         # float32, [0,1], (N,96,96,3)
-        train_image_data = dataset_root['data']['img'][:]
-        train_image_data = [
+        train_image_data_1 = dataset_root['data']['img1'][:]
+        train_image_data_1 = [
             cv2.resize(
                 frame,
                 (96, 96), interpolation=cv2.INTER_AREA
-            ) for frame in train_image_data
+            ) for frame in train_image_data_1
         ]
-        train_image_data = np.moveaxis(train_image_data, -1,1)
+        train_image_data_1 = np.moveaxis(train_image_data_1, -1,1)
+        # (N,3,96,96)
+
+        # float32, [0,1], (N,96,96,3)
+        train_image_data_2 = dataset_root['data']['img2'][:]
+        train_image_data_2 = [
+            cv2.resize(
+                frame,
+                (96, 96), interpolation=cv2.INTER_AREA
+            ) for frame in train_image_data_2
+        ]
+        train_image_data_2 = np.moveaxis(train_image_data_2, -1,1)
         # (N,3,96,96)
 
         # (N, D)
@@ -125,7 +136,8 @@ class PushTImageDataset(torch.utils.data.Dataset):
             normalized_train_data[key] = normalize_data(data, stats[key])
 
         # images are already normalized
-        normalized_train_data['image'] = train_image_data
+        normalized_train_data['image_1'] = train_image_data_1
+        normalized_train_data['image_2'] = train_image_data_2
 
         self.indices = indices
         self.stats = stats
@@ -153,6 +165,7 @@ class PushTImageDataset(torch.utils.data.Dataset):
         )
 
         # discard unused observations
-        nsample['image'] = nsample['image'][:self.obs_horizon,:]
+        nsample['image_1'] = nsample['image_1'][:self.obs_horizon,:]
+        nsample['image_2'] = nsample['image_2'][:self.obs_horizon,:]
         nsample['agent_pos'] = nsample['agent_pos'][:self.obs_horizon,:]
         return nsample
