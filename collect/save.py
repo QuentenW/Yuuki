@@ -1,6 +1,6 @@
 from multiprocessing.connection import Connection
 from select import select
-import cv2, json, comm
+import cv2, json, comm, os
 
 '''process for saving image frames as mp4 video and corresponding positon data as json'''
 def save_process(save_dir, save_id, camera_fps, save_img_size, cmd_con, data_con):
