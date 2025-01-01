@@ -1,9 +1,10 @@
 from multiprocessing.connection import Connection
 from select import select
-import cv2, json, comm
+import cv2, json, comm, os
 
 '''process for saving image frames as mp4 video and corresponding positon data as json'''
 def save_process(save_dir, save_id, camera_fps, save_img_size, cmd_con, data_con):
+  print("sams")
   # Create a new folder with an iterative name
   existing_folders = [f for f in os.listdir(save_dir) if os.path.isdir(os.path.join(save_dir, f))]
   new_folder_name = f"save_folder_{len(existing_folders) + 1}"
@@ -19,6 +20,7 @@ def save_process(save_dir, save_id, camera_fps, save_img_size, cmd_con, data_con
 
   while True:
     # Wait for signal from save pipe or command pipe
+    print('save waits')
     cons, _, _ = select([cmd_con, data_con], [], [])
     if data_con in cons:  # Store image and position data
       timestamp, position, img = data_con.recv()
