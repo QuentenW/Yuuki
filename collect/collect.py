@@ -34,4 +34,3 @@ if __name__=='__main__':
     save_cmd_con_in.send(comm.EXIT) ; save_proc.join()
     [con.close() for con in [hw_cmd_con_out, hw_cmd_con_in,
       save_cmd_con_out, save_cmd_con_in, data_con_out, data_con_in]]
-

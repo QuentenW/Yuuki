@@ -29,6 +29,6 @@ def save_process(save_dir, save_id, camera_fps, save_img_size, cmd_con, data_con
       with open(json_path, 'w') as file:
         json.dump(position_data, file, indent=4)
       video_writer.release()  # Save video and close writer
-      cmd_con.close()
-      data_con.close()
+      # cmd_con.close()
+      # data_con.close()
       break
