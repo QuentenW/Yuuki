@@ -18,12 +18,12 @@ existing_folders = [f for f in os.listdir(save_dir) if os.path.isdir(os.path.joi
 new_folder_name = f"save_folder_{len(existing_folders) + 1}"
 new_folder_path = os.path.join(save_dir, new_folder_name)
 os.makedirs(new_folder_path)
+save_id = time.time()
 
 # Update file paths to save in the new folder
 video_path = os.path.join(new_folder_path, f"video2_{save_id}.mp4")
 json_path = os.path.join(new_folder_path, f"times2_{save_id}.json")
 
-save_id = time.time()
 camera = init_camera(*img_size)
 video_writer = cv2.VideoWriter(video_path,
                                 cv2.VideoWriter_fourcc(*'mp4v'),
@@ -42,12 +42,12 @@ while True:
     timestamp = time.time()
     timestamp_data.append(timestamp)
     print('pulsed')
+    time.sleep(0.0015)
   if gpio.input(end_pin)==gpio.HIGH:
     print('end')
     video_writer.release()
     camera.stop()
     gpio.cleanup()
-    with open(json_path, 'wb') as file:
-      json.dump(timestamp_data, file)
+    with open(json_path, 'w') as file:
+      json.dump(timestamp_data, file, indent=4)
     break
-  time.sleep(0.01)
