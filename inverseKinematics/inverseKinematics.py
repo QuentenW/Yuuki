@@ -62,19 +62,18 @@ def main_loop():
     global x, y, z, theta1, theta2, theta3, delta
 
     # Set initial position
-    x = 240
-    y = 0
+    x = 170.5
+    y = 168
     z = 0
 
     inverse_kinematics(x, y, z)
 
     # Calculate and move steppers
     if theta1 > 90:
-        print(f"shoulder angle: {(90 - theta1)}")
-        print(f"shoulder angle: {(90 - theta1)}")
+        print(f"shoulder angle: {(180 - theta1)}")
     else:
-        print(f"shoulder angle: {(90 - theta1)}")
-        print(f"shoulder angle: {(90 - theta1)}")
+        print(f"shoulder angle: {(theta1)}")
+
 
     print(f"elbow: {theta2}")
     print(f"base_stepper angle: {delta}")
