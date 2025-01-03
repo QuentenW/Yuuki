@@ -21,7 +21,7 @@ if __name__=='__main__':
     sock.connect((host, port))
     sock.sendall('1'.encode()) # code for master
     sock.recv(bufsize) # be acknowledged
-    traj = np.tile([90, 0, 180, 90], Ta).reshape(Ta, 4)# start position
+    traj = np.tile([90, 0, 171, 69], Ta).reshape(Ta, 4)# start position
     t = 0
     while True:
       # send info
@@ -31,6 +31,7 @@ if __name__=='__main__':
       tcp.send_buffered_data(sock, np.array(pos).tobytes())
       if t >= To and 0 == t % Ta: # get trajectory
         traj = np.frombuffer(tcp.get_buffered_data(sock))
+        traj = np.reshape(traj, (Ta, 4))
       hardware.set_servos(servos, traj[t % Ta])
       t += 1
   finally:
