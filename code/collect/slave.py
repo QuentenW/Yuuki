@@ -1,5 +1,5 @@
 from multiprocessing import Pipe, Process
-from hardware import init_camera, get_image
+from util import hardware
 import RPi.GPIO as gpio
 import cv2, time, os, signal, pickle, time, json
 
@@ -24,7 +24,7 @@ save_id = time.time()
 video_path = os.path.join(new_folder_path, f"video2_{save_id}.mp4")
 json_path = os.path.join(new_folder_path, f"times2_{save_id}.json")
 
-camera = init_camera(*img_size)
+camera = hardware.init_camera(*img_size)
 video_writer = cv2.VideoWriter(video_path,
                                 cv2.VideoWriter_fourcc(*'mp4v'),
                                 camera_fps, save_img_size)
@@ -35,7 +35,7 @@ gpio.setup(end_pin, gpio.IN, pull_up_down=gpio.PUD_DOWN)
 
 while True:
   if gpio.input(img_pin)==gpio.HIGH:
-    img = get_image(camera)
+    img = hardware.get_image(camera)
     img_resize = cv2.resize(img, save_img_size,
                             interpolation=cv2.INTER_AREA)
     video_writer.write(img_resize)

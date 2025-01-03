@@ -1,5 +1,6 @@
 import numpy as np
-import time, socket, tcp
+import time, socket
+from util import tcp
 
 # parameters
 To = 2  # observation horison (table 17)

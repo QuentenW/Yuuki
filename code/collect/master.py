@@ -1,5 +1,7 @@
 from multiprocessing import Pipe, Process
-import time, hardware, save, comm
+from util import comm
+from . import hwproc, saveproc
+import time
 
 # params (image sizes are (w, h) in px)
 save_dir = "../data/pusht"
@@ -13,10 +15,10 @@ if __name__=='__main__':
   hw_cmd_con_out, hw_cmd_con_in = Pipe()
   save_cmd_con_out, save_cmd_con_in = Pipe()
   data_con_out, data_con_in = Pipe()
-  hw_proc = Process(target=hardware.human_control_process,
+  hw_proc = Process(target=hwproc.human_control_process,
                     args=(control_hz, save_rate, img_size,
                           hw_cmd_con_out, data_con_in))
-  save_proc = Process(target=save.save_process,
+  save_proc = Process(target=saveproc.save_process,
                       args=(save_dir, save_id,
                             control_hz/save_rate, save_img_size,
                             save_cmd_con_out, data_con_out))
