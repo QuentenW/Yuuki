@@ -80,7 +80,7 @@ if __name__=='__main__':
           ns['vea'](t.from_numpy(np.moveaxis(np.array([cv2.resize(
             f,n_img_size,interpolation=cv2.INTER_AREA) for f in imgs_1[-2:]]))
           ).to(d,dtype=t.float32)),
-        ns['veb'](t.from_numpy(np.moveaxis(np.array([cv2.resize(
+          ns['veb'](t.from_numpy(np.moveaxis(np.array([cv2.resize(
             f,n_img_size,interpolation=cv2.INTER_AREA) for f in imgs_2[-2:]]))
           ).to(d,dtype=t.float32)),
           t.from_numpy(
