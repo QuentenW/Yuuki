@@ -6,7 +6,7 @@ import socket
 To = 2
 Ta = 8
 img_size = (512, 512)
-host = '0.0.0.0'  # listen on all interfaces
+host = '10.0.0.158'  # use gpu's host
 port = 5000
 bufsize = 4096
 
