@@ -1,6 +1,6 @@
 import numpy as np
-from ..collect import hardware as hw
-import socket, tcp
+from util import hardware, tcp
+import socket
 
 # parameters
 To = 2
@@ -13,9 +13,9 @@ bufsize = 4096
 if __name__=='__main__':
   try:
     # set up hardware
-    servos = hw.init_servos()
-    camera = hw.init_camera(*img_size)
-    pots = hw.init_pots()
+    servos = hardware.init_servos()
+    camera = hardware.init_camera(*img_size)
+    pots = hardware.init_pots()
     # set up networking
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((host, port))
@@ -25,13 +25,13 @@ if __name__=='__main__':
     t = 0
     while True:
       # send info
-      img = hw.get_image(camera)
-      pos = hw.get_pots(pots)
+      img = hardware.get_image(camera)
+      pos = hardware.get_pots(pots)
       tcp.send_buffered_data(sock, img.tobytes())
       tcp.send_buffered_data(sock, np.array(pos).tobytes())
       if t >= To and 0 == t % Ta: # get trajectory
         traj = np.frombuffer(tcp.get_buffered_data(sock))
-      hw.set_servos(servos, traj[t % Ta])
+      hardware.set_servos(servos, traj[t % Ta])
       t += 1
   finally:
     sock.close()
