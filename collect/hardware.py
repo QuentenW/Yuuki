@@ -10,6 +10,7 @@ servo_bot = [6600, 5700, 6200, 6400]
 servo_top = 32767
 servo_range = [servo_top - bot for bot in servo_bot]
 
+# todo these pin configuration actions should be done in local code, not global scope
 # pin configuration
 master_pin = 17
 end_pin = 16
@@ -77,7 +78,6 @@ def human_control_process(control_hz, save_rate,
       t = 1
     else: t += 1
     time.sleep(1 / control_hz)
-  camera.stop()
 
 # todo unfinished pd control
 '''
