@@ -17,7 +17,6 @@ wrist_pin = 2
 # kit.servo[wrist_pin].angle = 0
 
 
-
 # Functions
 def inverse_kinematics(x, y, z):
     global theta1, theta2, theta3, delta
@@ -45,9 +44,11 @@ def inverse_kinematics(x, y, z):
     # Adjust angles
     if theta2 < 0 and theta1 > 0:
         if theta1 < 90:
+            print("if")
             theta1 += (180 - (theta1 * 2))
             theta2 *= -1
         elif theta1 > 90:
+            print("else")
             theta1 = theta1 - (2 * (theta1 - 90))
             theta2 *= -1
     elif theta1 < 0 and theta2 < 0:
@@ -63,19 +64,18 @@ def main_loop():
     global x, y, z, theta1, theta2, theta3, delta
 
     # Set initial position
-    x = 60
-    y = 10
+    x = 209.80256121069152
+    y = 89.80256121069154
     z = 0
 
     inverse_kinematics(x, y, z)
 
     # Calculate and move steppers
     if theta1 > 90:
-        print(f"shoulder angle: {(90 - theta1)}")
-        print(f"shoulder angle: {(90 - theta1)}")
+        print(f"shoulder angle > : {(180 - theta1)}")
     else:
-        print(f"shoulder angle: {(90 - theta1)}")
-        print(f"shoulder angle: {(90 - theta1)}")
+        print(f"shoulder angle < : {(theta1)}")
+
 
     print(f"elbow: {theta2}")
     print(f"base_stepper angle: {delta}")
